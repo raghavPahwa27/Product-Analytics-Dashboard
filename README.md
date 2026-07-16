@@ -1,4 +1,4 @@
-# Product Analytics Dashboard with Customer Churn Prediction
+# Product Analytics Dashboard
 
 > End-to-end product analytics and machine learning project built on the
 > [Olist Brazilian E-Commerce Dataset](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce).
@@ -45,7 +45,7 @@ Source: [Kaggle — Olist Brazilian E-Commerce](https://www.kaggle.com/datasets/
 
 | Layer | Technology |
 |---|---|
-| Data storage | SQLite + SQLAlchemy |
+| Data storage | SQLite (stdlib `sqlite3`) |
 | Data processing | Pandas, NumPy |
 | SQL analysis | 10 production SQL queries |
 | Visualisation | Plotly |
@@ -80,8 +80,8 @@ Product-Analytics-Dashboard/
 
 ```bash
 # 1. Clone the repo
-git clone https://github.com/YOUR_USERNAME/product-analytics-dashboard.git
-cd product-analytics-dashboard
+git clone https://github.com/raghavPahwa27/Product-Analytics-Dashboard.git
+cd Product-Analytics-Dashboard
 
 # 2. Create a virtual environment
 python -m venv .venv
@@ -91,12 +91,10 @@ source .venv/bin/activate        # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 
 # 4. Add Kaggle credentials
-#    Place kaggle.json in ~/.kaggle/  OR
-#    Create a .env file:
-echo "KAGGLE_USERNAME=your_username" >> .env
-echo "KAGGLE_KEY=your_api_key"       >> .env
+#    Place kaggle.json in ~/.kaggle/
+#    Get yours at: https://www.kaggle.com/settings/account
 
-# 5. Build the database
+# 5. Build the database (downloads CSVs + creates SQLite)
 python database.py
 
 # 6. Run the dashboard  (Part 3+)

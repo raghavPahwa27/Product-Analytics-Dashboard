@@ -14,6 +14,9 @@ models/
 # Secrets
 .env
 
+# Generated plots (large HTML — open locally)
+assets/*.html
+
 # Python
 __pycache__/
 *.pyc
