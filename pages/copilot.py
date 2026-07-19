@@ -1,7 +1,7 @@
 """
 pages/copilot.py
 ----------------
-AI Business Copilot — four features powered by Google Gemini:
+AI Insights Copilot — four features powered by Groq LLaMA 3.3:
     1. Executive Summary  — full business narrative from real KPIs
     2. Ask Your Data      — question-answering grounded in live metrics
     3. Explain Customer   — SHAP-based churn explanation in plain language
@@ -26,11 +26,11 @@ from utils.ui import ai_box, heading
 
 def _api_status_banner() -> None:
     if api_key_configured():
-        st.success("✅ Gemini API key configured — all features active.", icon=None)
+        st.success("✅ Groq API key configured — all features active.", icon=None)
     else:
         st.warning(
-            "⚠️ Gemini API key not found. "
-            "Set **GOOGLE_API_KEY** in your environment or Streamlit secrets "
+            "⚠️ Groq API key not found. "
+            "Set **GROQ_API_KEY** in your environment or Streamlit secrets "
             "(see README → Deployment).",
         )
 
@@ -44,13 +44,13 @@ def _section(title: str) -> None:
 
 def render(df: pd.DataFrame, features: pd.DataFrame) -> None:
     heading(
-        "✨ AI Business Copilot",
-        "Real-data-grounded insights powered by Google Gemini",
+        "✨ AI Insights Copilot",
+        "Real-data-grounded insights powered by Groq LLaMA 3.3",
     )
     _api_status_banner()
     st.caption(
         "Every AI response is based exclusively on your live dashboard metrics. "
-        "Gemini is instructed not to introduce external data."
+        "The LLM is instructed not to introduce external data."
     )
     st.divider()
 
@@ -65,7 +65,7 @@ def render(df: pd.DataFrame, features: pd.DataFrame) -> None:
     )
 
     if st.button("Generate Executive Summary", key="btn_exec"):
-        with st.spinner("Asking Gemini…"):
+        with st.spinner("Generating summary…"):
             summary = ask_gemini(build_executive_prompt(ctx))
         st.session_state["executive_summary"] = summary
 
@@ -77,7 +77,7 @@ def render(df: pd.DataFrame, features: pd.DataFrame) -> None:
 
     # ── Feature 2: Ask Your Data ─────────────────────────────────────────────
     _section("💬 Feature 2 — Ask Your Data")
-    st.markdown("Type any business question — Gemini answers using only your live metrics.")
+    st.markdown("Type any business question — the AI Insights Copilot answers using only your live metrics.")
 
     # Suggestion chips
     examples = [
@@ -153,7 +153,7 @@ def render(df: pd.DataFrame, features: pd.DataFrame) -> None:
     # ── Feature 4: Business Recommendations ─────────────────────────────────
     _section("💡 Feature 4 — Business Recommendations")
     st.markdown(
-        "Based on your current dashboard metrics, Gemini returns the "
+        "Based on your current dashboard metrics, the AI Insights Copilot returns the "
         "top 3 management actions with data signals and expected impact."
     )
 

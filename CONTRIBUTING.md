@@ -17,7 +17,7 @@ pip install -r requirements.txt
 
 # 4. Set up environment variables
 cp .env.example .env
-# Edit .env and add your GOOGLE_API_KEY
+# Edit .env and add your GROQ_API_KEY
 
 # 5. Download data and build database
 python database.py

@@ -1,7 +1,7 @@
 """
 utils/ai.py
 -----------
-AI client and prompt builders for the AI Business Copilot.
+AI client and prompt builders for the AI Insights Copilot.
 Uses Groq (LLaMA 3.3-70B) — fast, free, and reliable.
 
 API key resolution order:

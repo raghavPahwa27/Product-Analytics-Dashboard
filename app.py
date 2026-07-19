@@ -33,7 +33,7 @@ inject_css()
 def _sidebar(df):
     with st.sidebar:
         st.markdown("## 📊 Olist Analytics")
-        st.caption("Product Analytics · AI Business Copilot")
+        st.caption("Product Analytics · AI Insights Copilot")
         st.divider()
 
         page = st.radio(
@@ -45,7 +45,7 @@ def _sidebar(df):
                 "📦 Products",
                 "🌍 Regional",
                 "🤖 Churn",
-                "✨ AI Copilot",
+                "✨ AI Insights Copilot",
             ],
             label_visibility="collapsed",
         )

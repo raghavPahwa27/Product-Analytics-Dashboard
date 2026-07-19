@@ -1,9 +1,7 @@
 # AI-Powered Product Analytics Dashboard
 
-> A production-quality, end-to-end data analytics platform built on the
-> [Olist Brazilian E-Commerce dataset](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce).
-> Combines SQL data engineering, XGBoost churn prediction, SHAP explainability,
-> an interactive Streamlit dashboard, and an AI Business Copilot powered by Groq LLaMA 3.3.
+> A production-quality, end-to-end data analytics and predictive platform built on the [Olist Brazilian E-Commerce dataset](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce).
+> Combines high-performance SQL engineering, XGBoost churn modeling, SHAP explainability, and an AI Insights Copilot powered by LLaMA 3.3 via Groq.
 
 [![Python](https://img.shields.io/badge/python-3.9%2B-blue?logo=python)](https://python.org)
 [![Streamlit](https://img.shields.io/badge/streamlit-1.35-red?logo=streamlit)](https://streamlit.io)
@@ -11,112 +9,65 @@
 [![SQLite](https://img.shields.io/badge/SQLite-3-blue?logo=sqlite)](https://sqlite.org)
 [![Plotly](https://img.shields.io/badge/Plotly-5.22-blue)](https://plotly.com)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+[![Live Demo](https://img.shields.io/badge/demo-live-blueviolet?logo=streamlit)](https://olist-analytics.streamlit.app/)
 
 [Live Demo](https://olist-analytics.streamlit.app/) | [GitHub Repository](https://github.com/raghavPahwa27/Product-Analytics-Dashboard)
 
 ---
 
-## 🖥️ Dashboard Showcase
+## 🎬 Application Demo
+
+![Application walkthrough](assets/demo.webp)
+
+---
+
+## 🚀 Key Highlights & Portfolio Summary
+
+* **9-Table SQL Database**: Structured transactions, customers, reviews, and payments (100k+ records).
+* **93k Customer Profiles**: Engineered behaviors aggregated from raw order lines.
+* **15 Behavioral Features**: Features like freight ratios, delay rates, and review averages.
+* **XGBoost Churn Pipeline**: Stratified training producing a highly generalizable **0.750 ROC AUC** model.
+* **SHAP Explainability**: TreeExplainer breakdown showing positive/negative churn drivers per customer.
+* **AI Insights Copilot**: Direct LLaMA 3.3 integration for natural language database Q&A and predictive auditing.
+* **Interactive Visualization**: Multi-page Plotly charts (AOV trends, geo-heatmaps, bubble comparisons).
+* **Executive PDF Reports**: Dynamic A4 reports automatically generated using ReportLab.
+
+---
+
+## 🖥️ Feature Walkthrough
 
 ### 🏠 Executive Dashboard
+Comprehensive summary of company performance with high-level KPI cards, revenue trends, top categories, and churn distribution.
 ![Executive Dashboard](assets/executive_dashboard.png)
 
-### 🤖 Churn Prediction & Explainability (SHAP)
-![Churn Prediction Page](assets/churn_prediction.png)
-
-### ✨ AI Copilot Insights
-![AI Copilot Summary](assets/copilot_summary.png)
-
 ### 📈 Sales Analytics
+Multi-tab analysis covering revenue growth percentages, top/worst performing products, and customer payment splits.
 ![Sales Dashboard](assets/sales_analytics.png)
 
----
+### 👥 Customer Analytics
+Detailed histograms of customer lifetime spend, order frequency, review distribution, and correlation heatmaps.
+![Customer Analytics](assets/customers_analytics.png)
 
-## ## Features
+### 🤖 Churn Prediction & Explainability
+Individualized risk scores, interactive probability indicators, and SHAP feature impact waterfalls explaining prediction rationale.
+![Churn Prediction](assets/churn_prediction.png)
 
-✓ **SQL-based analytics**: Automated processing of Olist e-commerce database with SQLite.
-✓ **Customer churn prediction**: XGBoost model with leak-free features achieving 0.750 ROC AUC.
-✓ **SHAP explainability**: Individualized prediction explanations (why this customer is predicted to churn).
-✓ **Interactive Streamlit dashboard**: Beautiful multi-page app with dynamic filtering.
-✓ **AI Insights Copilot**: Grounded business summaries and recommendations powered by Groq LLaMA 3.3.
-✓ **Executive PDF reports**: Downloadable, professional A4 summaries generated via ReportLab.
-✓ **Plotly visualizations**: High-fidelity interactive area, bar, scatter, heatmap, and indicator charts.
-✓ **Global filtering**: Seamless sidebar filters for state, category, date, and payment type.
-
----
-
-## Project Overview
-
-This project is a complete analytics pipeline from raw CSV to interactive AI-powered dashboard:
-
-| Layer | Technology |
-|---|---|
-| Data Storage | SQLite (9 tables, 100k+ records) |
-| Data Engineering | Python + Pandas + SQL |
-| Feature Engineering | 15 behavioural features per customer |
-| Machine Learning | Logistic Regression, Random Forest, XGBoost |
-| Explainability | SHAP TreeExplainer |
-| Dashboard | Streamlit + Plotly |
-| AI Copilot | Groq LLaMA 3.3-70B (OpenAI-compatible) |
-| PDF Reports | ReportLab |
+### ✨ AI Insights Copilot
+Grounded natural language interface powered by LLaMA 3.3. Write prompts or select pre-configured actions to audit predictions or generate summaries.
+![AI Copilot](assets/copilot_summary.png)
 
 ---
 
-## Architecture
+## 🏗️ System Architecture
 
-```mermaid
-graph TD
-    A[Kaggle CSVs<br/>100k+ records] -->|database.py| B[(SQLite DB<br/>9 tables)]
-    B -->|preprocessing.py| C[Cleaned Data]
-    C -->|feature_engineering.py| D[Customer Features<br/>15 features · 93k customers]
-    D -->|train.py| E[XGBoost Pipeline<br/>AUC 0.75]
-    D -->|eda.py| F[EDA Charts<br/>assets/]
-    E --> G[model/]
-    G --> H[Streamlit Dashboard<br/>app.py]
-    B --> H
-    H -->|utils/ai.py| I[Groq LLaMA 3.3-70B<br/>AI Business Copilot]
-    H -->|utils/pdf.py| J[PDF Report<br/>ReportLab]
-```
+![System Architecture](assets/architecture.png)
 
 ---
 
-## Database Schema
+## 📊 Machine Learning Pipeline
 
-```
-customers          customer_id, customer_unique_id, state, city
-orders             order_id, customer_id, status, timestamps
-order_items        order_id, product_id, price, freight_value
-products           product_id, category_name, dimensions
-payments           order_id, payment_type, payment_sequential, value
-reviews            review_id, order_id, score, created_at
-sellers            seller_id, state, city
-geolocation        zip, lat, lng, city, state
-product_category_translation  portuguese ↔ english
-```
-
----
-
-## Machine Learning Pipeline
-
-### Feature Engineering
-15 behavioural features per unique customer:
-
-| Feature | Description |
-|---|---|
-| `num_orders` | Total orders placed |
-| `total_spend` | Cumulative spend (R$) |
-| `avg_order_value` | Mean spend per order |
-| `avg_review_score` | Mean review score |
-| `avg_delivery_days` | Mean actual delivery time |
-| `pct_delayed` | Fraction of delayed orders |
-| `avg_freight_ratio` | Freight as % of item value |
-| `customer_lifetime_days` | Days between first and last order |
-| `state` | Brazilian state (categorical) |
-| `preferred_payment_method` | Most frequent payment type |
-| … | + 5 more |
-
-### Churn Label
-A customer is labelled **churned** if they have not placed an order within **180 days** of their most recent purchase.
+### Data Leakage Prevention
+Features like `days_since_last_purchase` and `purchase_frequency` are strongly correlated with the target label because 93% of customers only have a single transaction in this dataset. Including them causes model overfitting (inflating training AUC). To ensure true generalizability on new profiles, we strictly excluded recency indicators from features.
 
 ### Model Comparison
 
@@ -126,18 +77,14 @@ A customer is labelled **churned** if they have not placed an order within **180
 | Random Forest | 0.675 | 0.672 |
 | Logistic Regression | 0.631 | 0.604 |
 
-### Data Leakage Prevention
-`days_since_last_purchase`, `days_since_first_purchase`, and `purchase_frequency`
-were excluded because for this dataset 93% of customers have only one order —
-these features are almost perfectly correlated with the churn label,
-producing artificially inflated AUC scores that would not generalise.
-
 ---
 
-## Installation
+## 🔧 Automated Pipeline Setup
+
+Set up the entire local database, preprocessing pipeline, feature engineering, and model training in a single command:
 
 ```bash
-# 1. Clone
+# 1. Clone the repository
 git clone https://github.com/raghavPahwa27/Product-Analytics-Dashboard.git
 cd Product-Analytics-Dashboard
 
@@ -146,116 +93,69 @@ pip install -r requirements.txt
 
 # 3. Configure Groq API key (optional — AI Copilot only)
 cp .env.example .env
-# Edit .env: GROQ_API_KEY=your_key_here
+# Edit .env and set: GROQ_API_KEY=your_groq_key
 
-# 4. Download dataset and build database
-python database.py          # downloads from Kaggle → builds SQLite
-
-# 5. Run the pipeline
-python preprocessing.py     # clean & validate raw data
-python feature_engineering.py  # build customer_features.parquet
-python train.py             # train XGBoost, save model + artefacts
-
-# 6. Launch dashboard
-streamlit run app.py
+# 4. Run the automated setup script
+python setup.py
 ```
+
+The script will automatically execute:
+1. `database.py` — Download Olist Kaggle dataset & build SQLite DB.
+2. `preprocessing.py` — Data cleaning & validation.
+3. `feature_engineering.py` — Compute customer behavioral dataset.
+4. `train.py` — Run model training & save serialization artifacts.
 
 ---
 
-## Usage
+## 🚀 Usage & Deployment
 
+### Start the Dashboard locally
 ```bash
-# Start the dashboard
+# Launch Streamlit server
 streamlit run app.py
 # → http://localhost:8501
-
-# Retrain the model
-python train.py
-
-# Generate a sample churn prediction
-python predict.py
 ```
 
-### Setting the Groq API Key
-
-**Local development:**
-```bash
-export GROQ_API_KEY=your_key_here
-streamlit run app.py
-```
-
-**Streamlit Cloud:**
-Add in the app settings → Secrets:
-```toml
-GROQ_API_KEY = "your_key_here"
-```
-
----
-
-## Folder Structure
-
-```
-Product-Analytics-Dashboard/
-├── app.py                    # Dashboard router (~70 lines)
-├── pages/
-│   ├── executive.py          # Executive Dashboard
-│   ├── sales.py              # Sales Analytics
-│   ├── customer.py           # Customer Analytics
-│   ├── product.py            # Product Analytics
-│   ├── regional.py           # Regional Analytics
-│   ├── churn.py              # Churn Prediction
-│   └── copilot.py            # AI Business Copilot
-├── utils/
-│   ├── data.py               # Cached data loaders
-│   ├── ui.py                 # CSS, KPI cards, chart helpers
-│   ├── ai.py                 # Groq client + prompt builders
-│   └── pdf.py                # ReportLab PDF generator
-├── sql/                      # SQL query files
-├── model/
-│   ├── churn_model.pkl       # Trained XGBoost pipeline (gitignored)
-│   ├── model_metrics.json    # AUC, F1, Precision, Recall
-│   ├── feature_importance.csv
-│   └── classification_report.txt
-├── assets/                   # Generated SHAP plots & page screenshots
-├── data/                     # Local data (gitignored)
-├── database.py               # Kaggle download + SQLite import
-├── preprocessing.py          # Data cleaning
-├── feature_engineering.py    # Feature computation
-├── eda.py                    # Exploratory analysis
-├── train.py                  # ML training pipeline
-├── predict.py                # Sample inference
-├── requirements.txt
-├── .env.example
-├── LICENSE
-└── CONTRIBUTING.md
-```
-
----
-
-## Deployment (Streamlit Community Cloud)
-
-1. Push this repository to GitHub (ensure `data/` and `model/*.pkl` are gitignored)
-2. Go to [share.streamlit.io](https://share.streamlit.io) → **New app**
-3. Select repository, branch `main`, entry file `app.py`
-4. Add secrets under **Advanced settings → Secrets**:
+### Streamlit Community Cloud Deployment
+1. Push this repository to GitHub (ensure `data/` and `model/*.pkl` are ignored).
+2. Deploy directly from [share.streamlit.io](https://share.streamlit.io).
+3. Set your Groq API key in **Advanced settings → Secrets**:
    ```toml
-   GROQ_API_KEY = "your_groq_api_key"
+   GROQ_API_KEY = "gsk_..."
    ```
-5. Add a **requirements.txt** setup command or use the file as-is
-6. **Important**: The SQLite database and parquet file are not committed.
-   Add a `setup.py` or document that first-run users must run `database.py`,
-   `feature_engineering.py`, and `train.py` locally and upload artefacts,
-   or use a cloud storage bucket for the data files.
+4. Note: The SQLite database file must be uploaded or set up on external storage for persistent cloud deployments.
 
 ---
 
-## Dataset
+## 📂 Repository Structure
 
-[Olist Brazilian E-Commerce Public Dataset](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce)
-by Olist, published on Kaggle under CC BY-NC-SA 4.0.
+```
+├── app.py                    # Streamlit thin router
+├── setup.py                  # Automated setup script
+├── pages/
+│   ├── executive.py          # KPIs & PDF reports
+│   ├── sales.py              # Sales & payment trends
+│   ├── customer.py           # Customer spend & satisfaction
+│   ├── product.py            # Category analytics
+│   ├── regional.py           # Geographic performance
+│   ├── churn.py              # XGBoost live inference
+│   └── copilot.py            # AI Insights Copilot (LLaMA 3.3)
+├── utils/
+│   ├── data.py               # Cached SQL/Parquet data loaders
+│   ├── ui.py                 # Custom CSS & reusable indicators
+│   ├── ai.py                 # Groq client & prompt templates
+│   └── pdf.py                # ReportLab A4 PDF builder
+├── model/                    # ML pipeline serialized artifacts
+├── assets/                   # Screenshots & demo walkthrough animation
+├── database.py               # Kaggle downloader & SQLite parser
+├── preprocessing.py          # Data validation
+├── feature_engineering.py    # Parquet feature builder
+├── train.py                  # Model trainer
+└── requirements.txt
+```
 
 ---
 
 ## License
 
-[MIT](LICENSE) — © 2024 Raghav Pahwa
+This project is licensed under the [MIT License](LICENSE) — © 2024 Raghav Pahwa.
