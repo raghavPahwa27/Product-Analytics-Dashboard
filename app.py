@@ -12,6 +12,10 @@ Responsibilities:
 Run:
     streamlit run app.py
 """
+import os
+import time
+from pathlib import Path
+
 import streamlit as st
 
 from views import churn, copilot, customer, executive, product, regional, sales
@@ -87,9 +91,70 @@ def _apply_filters(df, f):
     return df
 
 
+# ── Setup Wizard for Deployment ────────────────────────────────────────────────
+
+DB_PATH       = Path("data/olist.db")
+FEATURES_PATH = Path("data/customer_features.parquet")
+
+
+def _show_setup_page():
+    st.markdown("## 📊 Welcome to Olist Analytics Dashboard")
+    st.markdown("### ⚠️ Data files not found")
+    st.markdown(
+        "Since the database (`olist.db`) and customer feature dataset "
+        "(`customer_features.parquet`) are large, they are gitignored and not "
+        "stored directly in the GitHub repository."
+    )
+    
+    st.markdown("---")
+    
+    st.markdown("#### 📂 Option 1: Upload Data Files (for Streamlit Cloud)")
+    st.caption("Upload your local data files to quickly test the dashboard online:")
+    
+    os.makedirs("data", exist_ok=True)
+    
+    db_file = st.file_uploader("Upload olist.db", type=["db", "sqlite"])
+    parquet_file = st.file_uploader("Upload customer_features.parquet", type=["parquet"])
+    
+    if db_file is not None:
+        with open(DB_PATH, "wb") as f:
+            f.write(db_file.getbuffer())
+        st.success("Successfully uploaded olist.db!")
+        
+    if parquet_file is not None:
+        with open(FEATURES_PATH, "wb") as f:
+            f.write(parquet_file.getbuffer())
+        st.success("Successfully uploaded customer_features.parquet!")
+        
+    if DB_PATH.exists() and FEATURES_PATH.exists():
+        st.info("Both files uploaded successfully. Initializing dashboard…")
+        time.sleep(2)
+        st.rerun()
+
+    st.markdown("---")
+
+    st.markdown("#### 💻 Option 2: Run Locally")
+    st.markdown(
+        "If you want to run the application on your machine, clone the repository "
+        "and run the automated setup script to download the datasets and train the ML model:"
+    )
+    st.code(
+        "git clone https://github.com/raghavPahwa27/Product-Analytics-Dashboard.git\n"
+        "cd Product-Analytics-Dashboard\n"
+        "pip install -r requirements.txt\n"
+        "python setup.py\n"
+        "streamlit run app.py",
+        language="bash",
+    )
+
+
 # ── Main ──────────────────────────────────────────────────────────────────────
 
 def main():
+    if not DB_PATH.exists() or not FEATURES_PATH.exists():
+        _show_setup_page()
+        return
+
     with st.spinner("Loading data…"):
         df       = load_orders()
         features = load_features()
