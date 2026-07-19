@@ -1,50 +1,60 @@
 """
 utils/ai.py
 -----------
-Gemini AI client and prompt builders for the AI Business Copilot.
+AI client and prompt builders for the AI Business Copilot.
+Uses Groq (LLaMA 3.3-70B) — fast, free, and reliable.
 
 API key resolution order:
-    1. st.secrets["GOOGLE_API_KEY"]   — Streamlit Community Cloud
-    2. GOOGLE_API_KEY environment var — local / Docker
+    1. st.secrets["GROQ_API_KEY"]   — Streamlit Community Cloud
+    2. GROQ_API_KEY environment var — local
 """
 import json
 import os
 
 import streamlit as st
 
+_MODEL = "llama-3.3-70b-versatile"
+
 
 # ── API key helper ─────────────────────────────────────────────────────────────
 
 def get_api_key() -> str:
     try:
-        return st.secrets["GOOGLE_API_KEY"]
+        key = st.secrets.get("GROQ_API_KEY", "")
+        if key:
+            return key
     except Exception:
-        return os.environ.get("GOOGLE_API_KEY", "")
+        pass
+    return os.environ.get("GROQ_API_KEY", "")
 
 
 def api_key_configured() -> bool:
     return bool(get_api_key())
 
 
-# ── Core Gemini call ───────────────────────────────────────────────────────────
+# ── Core Groq call ─────────────────────────────────────────────────────────────
 
 def ask_gemini(prompt: str) -> str:
-    """Send a prompt to Gemini 1.5 Flash. Returns response text or error string."""
+    """Send a prompt to Groq LLaMA 3.3-70B. Returns response text or error string."""
     api_key = get_api_key()
     if not api_key:
         return (
-            "⚠️  Gemini API key not configured.\n\n"
-            "Set GOOGLE_API_KEY in your environment or Streamlit secrets.\n"
-            "See README.md → Deployment for instructions."
+            "⚠️  Groq API key not configured.\n\n"
+            "Set GROQ_API_KEY in your environment or Streamlit secrets.\n"
+            "Get a free key at https://console.groq.com"
         )
     try:
-        import google.generativeai as genai  # noqa: PLC0415
-        genai.configure(api_key=api_key)
-        model    = genai.GenerativeModel("gemini-2.0-flash")
-        response = model.generate_content(prompt)
-        return response.text
+        from groq import Groq  # noqa: PLC0415
+        client   = Groq(api_key=api_key)
+        response = client.chat.completions.create(
+            model=_MODEL,
+            messages=[{"role": "user", "content": prompt}],
+            max_tokens=1500,
+            temperature=0.4,
+        )
+        return response.choices[0].message.content
     except Exception as exc:
-        return f"⚠️  Gemini error: {exc}"
+        return f"⚠️  AI error: {exc}"
 
 
 # ── Business context builder ───────────────────────────────────────────────────
@@ -52,8 +62,7 @@ def ask_gemini(prompt: str) -> str:
 def build_business_context(df, features) -> dict:
     """
     Compute key business metrics from the order and feature datasets.
-    This dict is passed as context to every AI prompt — keeping AI grounded
-    in real data and preventing hallucination.
+    Passed as context to every AI prompt — keeps responses grounded in real data.
     """
     return {
         "total_revenue_BRL":              round(float(df["item_value"].sum()), 2),
