@@ -23,16 +23,26 @@ _CSS = """
 }
 [data-testid="stSidebar"] * { color: #C9D1D9; }
 
+/* Pull sidebar content up to remove empty top space */
+div[data-testid="stSidebarUserContent"] {
+    padding-top: 1.5rem !important;
+}
+
 /* ── KPI cards ────────────────────────────────────────────────── */
 .kpi-card {
     background: linear-gradient(135deg, #1A1F2E 0%, #222840 100%);
     border: 1px solid rgba(79,139,249,0.22);
     border-radius: 14px;
-    padding: 20px 16px 16px;
+    padding: 12px 10px;
     text-align: center;
     position: relative;
     overflow: hidden;
-    margin-bottom: 6px;
+    margin-bottom: 8px;
+    height: 130px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 .kpi-card::before {
     content: '';
@@ -42,10 +52,10 @@ _CSS = """
     background: var(--accent, linear-gradient(90deg,#4F8BF9,#7B61FF));
     border-radius: 14px 14px 0 0;
 }
-.kpi-icon  { font-size: 1.4rem; margin-bottom: 6px; }
-.kpi-label { font-size: 0.68rem; color: #8893B0; text-transform: uppercase;
-             letter-spacing: 1.1px; margin-bottom: 6px; }
-.kpi-value { font-size: 1.75rem; font-weight: 700; color: #E8EBF4; line-height: 1.1; }
+.kpi-icon  { font-size: 1.3rem; margin-bottom: 4px; }
+.kpi-label { font-size: 0.65rem; color: #8893B0; text-transform: uppercase;
+             letter-spacing: 1.1px; margin-bottom: 4px; }
+.kpi-value { font-size: 1.35rem; font-weight: 700; color: #E8EBF4; line-height: 1.1; }
 
 /* ── Risk badges ──────────────────────────────────────────────── */
 .badge-high   { display:inline-block; background:#EF553B22; color:#EF553B;
