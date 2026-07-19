@@ -2,7 +2,7 @@
 *.db
 *.sqlite
 
-# Raw data (large files — download locally via database.py)
+# Raw data (download locally via database.py)
 data/raw/
 data/processed/
 
@@ -15,10 +15,11 @@ models/
 data/customer_features.csv
 data/customer_features.parquet
 
-# Secrets
+# Secrets — never commit these
 .env
+.streamlit/secrets.toml
 
-# Generated plots (large HTML — open locally)
+# Generated plots (large HTML)
 assets/*.html
 
 # Python

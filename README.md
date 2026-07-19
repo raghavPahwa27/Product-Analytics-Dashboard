@@ -1,58 +1,188 @@
-# Product Analytics Dashboard
+# Olist Product Analytics Dashboard
 
-> End-to-end product analytics and machine learning project built on the
-> [Olist Brazilian E-Commerce Dataset](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce).
-> Designed for portfolio, technical interviews, and internship applications.
+> A production-quality, end-to-end data analytics platform built on the
+> [Olist Brazilian E-Commerce dataset](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce).
+> Combines SQL data engineering, XGBoost churn prediction, SHAP explainability,
+> an interactive Streamlit dashboard, and a Google Gemini AI Business Copilot.
+
+[![Python](https://img.shields.io/badge/python-3.9%2B-blue?logo=python)](https://python.org)
+[![Streamlit](https://img.shields.io/badge/streamlit-1.35-red?logo=streamlit)](https://streamlit.io)
+[![XGBoost](https://img.shields.io/badge/XGBoost-2.0-orange)](https://xgboost.ai)
+[![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
 
 ---
 
 ## Project Overview
 
-This project answers real business questions a Product Manager or Business Analyst
-faces every day:
-
-- **Revenue** — Where is money coming from? Is it growing?
-- **Customer Behaviour** — Who are our best customers? Who is at risk of churning?
-- **Product Performance** — Which products and categories drive the most revenue?
-- **Regional Performance** — Which states have the highest order volume?
-- **Customer Satisfaction** — How do review scores correlate with churn?
-- **Churn Prediction** — Which customers are unlikely to return?
-
-The dashboard provides an interactive view of all of the above, backed by a
-trained XGBoost churn model and AI-generated executive summaries via Gemini.
-
----
-
-## Dataset
-
-| Table | Rows (approx.) | Description |
-|---|---|---|
-| `customers` | 99k | Customer location and unique ID |
-| `orders` | 99k | Core fact table — every purchase event |
-| `order_items` | 112k | Line items per order (product, seller, price) |
-| `payments` | 103k | Payment method and value per order |
-| `reviews` | 99k | Customer satisfaction scores (1–5) |
-| `products` | 33k | Product attributes and category |
-| `sellers` | 3k | Seller location |
-| `geolocation` | 1M | Zip-code latitude/longitude lookup |
-| `product_category_translation` | 71 | Portuguese → English category names |
-
-Source: [Kaggle — Olist Brazilian E-Commerce](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce)
-
----
-
-## Tech Stack
+This project is a complete analytics pipeline from raw CSV to interactive AI-powered dashboard:
 
 | Layer | Technology |
 |---|---|
-| Data storage | SQLite (stdlib `sqlite3`) |
-| Data processing | Pandas, NumPy |
-| SQL analysis | 10 production SQL queries |
-| Visualisation | Plotly |
-| Dashboard | Streamlit |
-| Machine Learning | Scikit-learn, XGBoost |
-| AI summaries | Google Gemini API |
-| Language | Python 3.10+ |
+| Data Storage | SQLite (9 tables, 100k+ records) |
+| Data Engineering | Python + Pandas + SQL |
+| Feature Engineering | 15 behavioural features per customer |
+| Machine Learning | Logistic Regression, Random Forest, XGBoost |
+| Explainability | SHAP TreeExplainer |
+| Dashboard | Streamlit + Plotly |
+| AI Copilot | Google Gemini 1.5 Flash |
+| PDF Reports | ReportLab |
+
+---
+
+## Features
+
+### 📊 Interactive Dashboard (7 pages)
+
+| Page | Description |
+|---|---|
+| 🏠 Executive | KPI cards, monthly revenue trend, top categories, churn split |
+| 📈 Sales | Revenue growth, MoM %, category trends, product rankings, payments |
+| 👥 Customers | Spend distribution, repeat buyers, review analysis, segment scatter |
+| 📦 Products | Top/worst categories, revenue-vs-orders bubble, review scores |
+| 🌍 Regional | State revenue/orders, delivery quality, delayed rates, top cities |
+| 🤖 Churn | Live inference, probability gauge, SHAP waterfall, risk badge |
+| ✨ AI Copilot | Gemini-powered executive summary, Q&A, churn explanation, recommendations |
+
+### 🤖 AI Business Copilot
+
+Every response is grounded in your live dashboard data — no hallucination:
+- **Executive Summary**: Full business narrative with KPIs, trends, risks, and recommendations
+- **Ask Your Data**: Natural language Q&A over your metrics
+- **Explain Prediction**: Plain-English SHAP churn explanation + retention strategies
+- **Business Recommendations**: Top 3 management actions from current data
+
+### 📄 PDF Report Generator
+Downloadable A4 executive report including revenue summary, category rankings, regional performance, and ML model metrics.
+
+---
+
+## Architecture
+
+```mermaid
+graph TD
+    A[Kaggle CSVs<br/>100k+ records] -->|database.py| B[(SQLite DB<br/>9 tables)]
+    B -->|preprocessing.py| C[Cleaned Data]
+    C -->|feature_engineering.py| D[Customer Features<br/>15 features · 93k customers]
+    D -->|train.py| E[XGBoost Pipeline<br/>AUC 0.75]
+    D -->|eda.py| F[EDA Charts<br/>assets/]
+    E --> G[model/]
+    G --> H[Streamlit Dashboard<br/>app.py]
+    B --> H
+    H -->|utils/ai.py| I[Gemini 1.5 Flash<br/>AI Business Copilot]
+    H -->|utils/pdf.py| J[PDF Report<br/>ReportLab]
+```
+
+---
+
+## Database Schema
+
+```
+customers          customer_id, customer_unique_id, state, city
+orders             order_id, customer_id, status, timestamps
+order_items        order_id, product_id, price, freight_value
+products           product_id, category_name, dimensions
+payments           order_id, payment_type, payment_sequential, value
+reviews            review_id, order_id, score, created_at
+sellers            seller_id, state, city
+geolocation        zip, lat, lng, city, state
+product_category_translation  portuguese ↔ english
+```
+
+---
+
+## Machine Learning Pipeline
+
+### Feature Engineering
+15 behavioural features per unique customer:
+
+| Feature | Description |
+|---|---|
+| `num_orders` | Total orders placed |
+| `total_spend` | Cumulative spend (R$) |
+| `avg_order_value` | Mean spend per order |
+| `avg_review_score` | Mean review score |
+| `avg_delivery_days` | Mean actual delivery time |
+| `pct_delayed` | Fraction of delayed orders |
+| `avg_freight_ratio` | Freight as % of item value |
+| `customer_lifetime_days` | Days between first and last order |
+| `state` | Brazilian state (categorical) |
+| `preferred_payment_method` | Most frequent payment type |
+| … | + 5 more |
+
+### Churn Label
+A customer is labelled **churned** if they have not placed an order within **180 days** of their most recent purchase.
+
+### Model Comparison
+
+| Model | ROC AUC | F1 |
+|---|---|---|
+| **XGBoost** | **0.750** | **0.717** |
+| Random Forest | 0.675 | 0.672 |
+| Logistic Regression | 0.631 | 0.604 |
+
+### Data Leakage Prevention
+`days_since_last_purchase`, `days_since_first_purchase`, and `purchase_frequency`
+were excluded because for this dataset 93% of customers have only one order —
+these features are almost perfectly correlated with the churn label,
+producing artificially inflated AUC scores that would not generalise.
+
+---
+
+## Installation
+
+```bash
+# 1. Clone
+git clone https://github.com/raghavPahwa27/Product-Analytics-Dashboard.git
+cd Product-Analytics-Dashboard
+
+# 2. Install dependencies
+pip install -r requirements.txt
+
+# 3. Configure Gemini API key (optional — AI Copilot only)
+cp .env.example .env
+# Edit .env: GOOGLE_API_KEY=your_key_here
+
+# 4. Download dataset and build database
+python database.py          # downloads from Kaggle → builds SQLite
+
+# 5. Run the pipeline
+python preprocessing.py     # clean & validate raw data
+python feature_engineering.py  # build customer_features.parquet
+python train.py             # train XGBoost, save model + artefacts
+
+# 6. Launch dashboard
+streamlit run app.py
+```
+
+---
+
+## Usage
+
+```bash
+# Start the dashboard
+streamlit run app.py
+# → http://localhost:8501
+
+# Retrain the model
+python train.py
+
+# Generate a sample churn prediction
+python predict.py
+```
+
+### Setting the Gemini API Key
+
+**Local development:**
+```bash
+export GOOGLE_API_KEY=your_key_here
+streamlit run app.py
+```
+
+**Streamlit Cloud:**
+Add in the app settings → Secrets:
+```toml
+GOOGLE_API_KEY = "your_key_here"
+```
 
 ---
 
@@ -60,183 +190,78 @@ Source: [Kaggle — Olist Brazilian E-Commerce](https://www.kaggle.com/datasets/
 
 ```
 Product-Analytics-Dashboard/
-│
-├── data/
-│   ├── raw/                         # Original Olist CSVs (git-ignored)
-│   ├── customer_features.csv        # Engineered feature table
-│   └── customer_features.parquet    # Same — fast I/O for ML
-│
-├── sql/                             # Schema DDL + 10 analytical SQL queries
-│
+├── app.py                    # Dashboard router (~70 lines)
+├── pages/
+│   ├── executive.py          # Executive Dashboard
+│   ├── sales.py              # Sales Analytics
+│   ├── customer.py           # Customer Analytics
+│   ├── product.py            # Product Analytics
+│   ├── regional.py           # Regional Analytics
+│   ├── churn.py              # Churn Prediction
+│   └── copilot.py            # AI Business Copilot
+├── utils/
+│   ├── data.py               # Cached data loaders
+│   ├── ui.py                 # CSS, KPI cards, chart helpers
+│   ├── ai.py                 # Gemini client + prompt builders
+│   └── pdf.py                # ReportLab PDF generator
+├── sql/                      # SQL query files
 ├── model/
-│   └── churn_model.pkl              # Best trained pipeline (git-ignored)
-│
-├── assets/                          # Plotly HTML charts + SHAP PNG
-│
-├── database.py         # Downloads CSVs, creates SQLite DB
-├── preprocessing.py    # SQL → clean flat DataFrame
-├── feature_engineering.py  # Item/order aggregation → customer features
-├── eda.py              # EDA charts saved to assets/
-├── train.py            # ML pipeline — trains 3 models, saves best
-├── predict.py          # Reusable prediction interface for Part 4
+│   ├── churn_model.pkl       # Trained XGBoost pipeline (gitignored)
+│   ├── model_metrics.json    # AUC, F1, Precision, Recall
+│   ├── feature_importance.csv
+│   └── classification_report.txt
+├── assets/                   # Generated SHAP plots
+├── data/                     # Local data (gitignored)
+├── database.py               # Kaggle download + SQLite import
+├── preprocessing.py          # Data cleaning
+├── feature_engineering.py    # Feature computation
+├── eda.py                    # Exploratory analysis
+├── train.py                  # ML training pipeline
+├── predict.py                # Sample inference
 ├── requirements.txt
-└── README.md
+├── .env.example
+├── LICENSE
+└── CONTRIBUTING.md
 ```
 
 ---
 
-## Installation
+## Deployment (Streamlit Community Cloud)
 
-```bash
-# 1. Clone the repo
-git clone https://github.com/raghavPahwa27/Product-Analytics-Dashboard.git
-cd Product-Analytics-Dashboard
-
-# 2. Create a virtual environment
-python -m venv .venv
-source .venv/bin/activate        # Windows: .venv\Scripts\activate
-
-# 3. Install dependencies
-pip install -r requirements.txt
-
-# 4. Add Kaggle credentials
-#    Place kaggle.json in ~/.kaggle/
-#    Get yours at: https://www.kaggle.com/settings/account
-
-# 5. Build the database (downloads CSVs + creates SQLite)
-python database.py
-
-# 6. Run the dashboard  (Part 3+)
-streamlit run app.py
-```
+1. Push this repository to GitHub (ensure `data/` and `model/*.pkl` are gitignored)
+2. Go to [share.streamlit.io](https://share.streamlit.io) → **New app**
+3. Select repository, branch `main`, entry file `app.py`
+4. Add secrets under **Advanced settings → Secrets**:
+   ```toml
+   GOOGLE_API_KEY = "your_gemini_api_key"
+   ```
+5. Add a **requirements.txt** setup command or use the file as-is
+6. **Important**: The SQLite database and parquet file are not committed.
+   Add a `setup.py` or document that first-run users must run `database.py`,
+   `feature_engineering.py`, and `train.py` locally and upload artefacts,
+   or use a cloud storage bucket for the data files.
 
 ---
 
-## Architecture
+## Future Improvements
 
-```
-Kaggle API
-    │
-    ▼
-data/raw/  (9 CSV files)
-    │
-    ▼ database.py
-SQLite DB (data/olist.db)
-    │
-    ├── sql/          (analytical queries — Part 1)
-    ├── notebooks/    (EDA — Part 2)
-    ├── app.py        (Streamlit dashboard — Part 3)
-    ├── model/        (XGBoost churn model — Part 4)
-    └── Gemini API    (executive summaries — Part 5)
-```
+- [ ] Streamlit Cloud file persistence via AWS S3 or Google Cloud Storage
+- [ ] Customer segmentation with K-Means (RFM clustering)
+- [ ] Time-series revenue forecasting (Prophet)
+- [ ] Product recommendation engine
+- [ ] Gemini multimodal: upload a CSV for ad-hoc analysis
+- [ ] Email alert integration for high-risk churn customers
+- [ ] A/B test simulation module
 
 ---
 
-## Database Schema
+## Dataset
 
-The schema follows a **star schema** pattern with `orders` as the central fact table.
-
-```
-customers ──────── orders ─────────── order_items ──── products ── category_translation
-                     │                     │
-                   payments             sellers
-                     │
-                   reviews
-                     │
-                geolocation (via customers/sellers zip prefix)
-```
-
-See [`sql/schema.sql`](sql/schema.sql) for the full DDL.
+[Olist Brazilian E-Commerce Public Dataset](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce)
+by Olist, published on Kaggle under CC BY-NC-SA 4.0.
 
 ---
 
-## SQL Queries
+## License
 
-| File | Business Question |
-|---|---|
-| `monthly_revenue.sql` | Revenue trend month over month |
-| `monthly_orders.sql` | Order volume trend |
-| `top_products.sql` | Highest-revenue products |
-| `revenue_by_category.sql` | Revenue breakdown by category |
-| `orders_by_state.sql` | Regional order and revenue distribution |
-| `avg_order_value.sql` | AOV trend over time |
-| `repeat_customers.sql` | Customer retention distribution |
-| `payment_distribution.sql` | Payment method preferences |
-| `avg_review_score.sql` | Satisfaction score by category |
-| `top_customers.sql` | Highest lifetime-value customers |
-
----
-
-## Machine Learning Pipeline (Part 3)
-
-### Algorithms Compared
-
-| Model | Notes |
-|---|---|
-| Logistic Regression | Baseline linear model; scaled features, `class_weight="balanced"` |
-| Random Forest | Ensemble of 300 trees; handles non-linearity and imbalance natively |
-| XGBoost | Gradient-boosted trees; `scale_pos_weight` for imbalance; fastest to converge |
-
-### Evaluation Metrics
-
-| Metric | Why it matters for churn |
-|---|---|
-| ROC AUC | Primary selection metric — threshold-independent rank quality |
-| F1 Score | Harmonic mean of precision / recall — balances both error types |
-| Recall | How many churners are correctly caught |
-| Precision | How often a churn alert is correct (avoids wasted retention spend) |
-| Accuracy | Reported but de-emphasised — misleading on imbalanced targets |
-
-### Model Selection
-
-The best model is selected by **ROC AUC** — the most reliable metric when the
-positive class (churned customers) is a minority. AUC measures the model's
-ability to rank churned customers above active ones regardless of threshold,
-which is what a retention team actually cares about.
-
-### Feature Importance (Top Features)
-
-| Feature | Business meaning |
-|---|---|
-| `days_since_last_purchase` | Strongest disengagement signal — recency |
-| `customer_lifetime_days` | Long-term customers churn far less |
-| `total_spend` | High-value customers are retained more aggressively |
-| `num_orders` | Repeat buyers have lower churn risk |
-| `avg_review_score` | Satisfaction proxy — low scores predict departure |
-| `pct_delayed` | Delivery failures drive negative experiences |
-
-### SHAP Explainability
-
-SHAP (SHapley Additive exPlanations) provides per-customer feature attribution
-for the best model. The beeswarm plot (`assets/shap_summary.png`) shows how
-each feature pushes predictions toward churn or retention for every test-set
-customer — making the model auditable and interview-explainable.
-
-### Outputs
-
-```
-model/churn_model.pkl          — full sklearn Pipeline (preprocessor + classifier)
-assets/roc_curves.html         — ROC curves for all 3 models
-assets/confusion_*.html        — confusion matrix per model
-assets/feature_importance.html — top-15 feature importance bar chart
-assets/shap_summary.png        — SHAP beeswarm summary
-```
-
----
-
-## Future Scope
-
-| Part | Status | Focus |
-|---|---|---|
-| Part 1 | ✅ Done | Data engineering — SQLite DB + 10 SQL queries |
-| Part 2 | ✅ Done | Feature engineering + Exploratory Data Analysis |
-| Part 3 | ✅ Done | ML pipeline — LR / RF / XGBoost + SHAP explainability |
-| Part 4 | Pending | Interactive Streamlit dashboard with Plotly charts |
-| Part 5 | Pending | Gemini AI executive summary and natural-language Q&A |
-
----
-
-## Author
-
-Built as a portfolio project demonstrating end-to-end skills in data engineering,
-SQL, product analytics, machine learning, and dashboard development.
+[MIT](LICENSE) — © 2024 Raghav Pahwa
