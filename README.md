@@ -62,15 +62,24 @@ Source: [Kaggle — Olist Brazilian E-Commerce](https://www.kaggle.com/datasets/
 Product-Analytics-Dashboard/
 │
 ├── data/
-│   ├── raw/            # Original Olist CSVs (git-ignored)
-│   └── processed/      # Feature-engineered datasets (git-ignored)
+│   ├── raw/                         # Original Olist CSVs (git-ignored)
+│   ├── customer_features.csv        # Engineered feature table
+│   └── customer_features.parquet    # Same — fast I/O for ML
 │
-├── sql/                # Schema DDL + 10 analytical SQL queries
+├── sql/                             # Schema DDL + 10 analytical SQL queries
 │
-├── models/             # Trained ML model artefacts (git-ignored)
+├── model/
+│   └── churn_model.pkl              # Best trained pipeline (git-ignored)
+│
+├── assets/                          # Plotly HTML charts + SHAP PNG
 │
 ├── database.py         # Downloads CSVs, creates SQLite DB
-├── requirements.txt    # Python dependencies
+├── preprocessing.py    # SQL → clean flat DataFrame
+├── feature_engineering.py  # Item/order aggregation → customer features
+├── eda.py              # EDA charts saved to assets/
+├── train.py            # ML pipeline — trains 3 models, saves best
+├── predict.py          # Reusable prediction interface for Part 4
+├── requirements.txt
 └── README.md
 ```
 
@@ -158,14 +167,72 @@ See [`sql/schema.sql`](sql/schema.sql) for the full DDL.
 
 ---
 
+## Machine Learning Pipeline (Part 3)
+
+### Algorithms Compared
+
+| Model | Notes |
+|---|---|
+| Logistic Regression | Baseline linear model; scaled features, `class_weight="balanced"` |
+| Random Forest | Ensemble of 300 trees; handles non-linearity and imbalance natively |
+| XGBoost | Gradient-boosted trees; `scale_pos_weight` for imbalance; fastest to converge |
+
+### Evaluation Metrics
+
+| Metric | Why it matters for churn |
+|---|---|
+| ROC AUC | Primary selection metric — threshold-independent rank quality |
+| F1 Score | Harmonic mean of precision / recall — balances both error types |
+| Recall | How many churners are correctly caught |
+| Precision | How often a churn alert is correct (avoids wasted retention spend) |
+| Accuracy | Reported but de-emphasised — misleading on imbalanced targets |
+
+### Model Selection
+
+The best model is selected by **ROC AUC** — the most reliable metric when the
+positive class (churned customers) is a minority. AUC measures the model's
+ability to rank churned customers above active ones regardless of threshold,
+which is what a retention team actually cares about.
+
+### Feature Importance (Top Features)
+
+| Feature | Business meaning |
+|---|---|
+| `days_since_last_purchase` | Strongest disengagement signal — recency |
+| `customer_lifetime_days` | Long-term customers churn far less |
+| `total_spend` | High-value customers are retained more aggressively |
+| `num_orders` | Repeat buyers have lower churn risk |
+| `avg_review_score` | Satisfaction proxy — low scores predict departure |
+| `pct_delayed` | Delivery failures drive negative experiences |
+
+### SHAP Explainability
+
+SHAP (SHapley Additive exPlanations) provides per-customer feature attribution
+for the best model. The beeswarm plot (`assets/shap_summary.png`) shows how
+each feature pushes predictions toward churn or retention for every test-set
+customer — making the model auditable and interview-explainable.
+
+### Outputs
+
+```
+model/churn_model.pkl          — full sklearn Pipeline (preprocessor + classifier)
+assets/roc_curves.html         — ROC curves for all 3 models
+assets/confusion_*.html        — confusion matrix per model
+assets/feature_importance.html — top-15 feature importance bar chart
+assets/shap_summary.png        — SHAP beeswarm summary
+```
+
+---
+
 ## Future Scope
 
-| Part | Focus |
-|---|---|
-| Part 2 | Exploratory Data Analysis — Jupyter notebooks, statistical summaries |
-| Part 3 | Interactive Streamlit dashboard with Plotly charts |
-| Part 4 | XGBoost churn prediction model + SHAP explainability |
-| Part 5 | Gemini AI executive summary and natural-language Q&A |
+| Part | Status | Focus |
+|---|---|---|
+| Part 1 | ✅ Done | Data engineering — SQLite DB + 10 SQL queries |
+| Part 2 | ✅ Done | Feature engineering + Exploratory Data Analysis |
+| Part 3 | ✅ Done | ML pipeline — LR / RF / XGBoost + SHAP explainability |
+| Part 4 | Pending | Interactive Streamlit dashboard with Plotly charts |
+| Part 5 | Pending | Gemini AI executive summary and natural-language Q&A |
 
 ---
 

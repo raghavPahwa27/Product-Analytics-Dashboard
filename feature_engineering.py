@@ -43,8 +43,8 @@ def _item_level_features(df: pd.DataFrame) -> pd.DataFrame:
         total_products     =("product_id",   "count"),
         distinct_categories=("category",     "nunique"),
         distinct_sellers   =("seller_id",    "nunique"),
-        avg_freight_ratio  =("freight_value","sum"),   # divided by total_spend later
-    ).rename(columns={"avg_freight_ratio": "_freight_sum"})
+        freight_sum        =("freight_value","sum"),   # divided by total_spend later to yield avg_freight_ratio
+    )
 
 
 def _order_level_features(df: pd.DataFrame, reference_date: pd.Timestamp) -> pd.DataFrame:
@@ -84,6 +84,11 @@ def _order_level_features(df: pd.DataFrame, reference_date: pd.Timestamp) -> pd.
     agg["days_since_first_purchase"] = (reference_date - agg["first_purchase"]).dt.days
     agg["days_since_last_purchase"]  = (reference_date - agg["last_purchase"]).dt.days
 
+    # Span of a customer's purchase history — strong churn predictor
+    agg["customer_lifetime_days"] = (
+        agg["last_purchase"] - agg["first_purchase"]
+    ).dt.days
+
     return agg.drop(columns=["first_purchase", "last_purchase"])
 
 
@@ -111,7 +116,9 @@ def build_customer_features(df: pd.DataFrame) -> pd.DataFrame:
     Master function: merges item-level and order-level aggregations into a
     single customer-level DataFrame, then computes derived features.
     """
-    reference_date = df["order_purchase_timestamp"].max()
+    # .normalize() truncates the time component so day-differences are whole numbers
+    # and the last day of the dataset is not counted as a partial day.
+    reference_date = df["order_purchase_timestamp"].max().normalize()
     log.info("Reference date (dataset end): %s", reference_date.date())
 
     item_agg  = _item_level_features(df)
@@ -127,10 +134,10 @@ def build_customer_features(df: pd.DataFrame) -> pd.DataFrame:
         features["num_orders"] / features["days_since_first_purchase"].clip(lower=1) * 30
     )  # orders per 30 days; clip(1) avoids division by zero for single-day customers
     features["avg_freight_ratio"]  = (
-        features["_freight_sum"] / features["total_spend"].clip(lower=0.01)
+        features["freight_sum"] / features["total_spend"].clip(lower=0.01)
     )
 
-    features = features.drop(columns=["_freight_sum"])
+    features = features.drop(columns=["freight_sum"])
     features = features.round(4)
 
     log.info("Built features for %d customers.", len(features))

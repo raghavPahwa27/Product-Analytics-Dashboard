@@ -150,7 +150,8 @@ def plot_churn_by_state(df: pd.DataFrame) -> None:
 def plot_correlation_matrix(df: pd.DataFrame) -> None:
     numeric_cols = [
         "num_orders", "total_spend", "avg_order_value", "avg_basket_size",
-        "purchase_frequency", "days_since_first_purchase", "days_since_last_purchase",
+        "purchase_frequency", "customer_lifetime_days",
+        "days_since_first_purchase", "days_since_last_purchase",
         "avg_delivery_days", "avg_review_score", "pct_delayed", "weekend_purchase_ratio",
         "distinct_categories", "avg_freight_ratio", "churn",
     ]

@@ -22,7 +22,10 @@ log = logging.getLogger(__name__)
 
 # ---------------------------------------------------------------------------
 # SQL — one query pulls everything needed; Python handles only type conversion.
-# payment_sequential = 1 selects the primary payment method per order.
+# payment_sequential = 1 selects only the primary payment method per order.
+#   Some orders are split across multiple payment methods (e.g. credit card
+#   + voucher). Keeping only sequential = 1 gives us one row per order and
+#   represents the customer's main payment choice without double-counting.
 # review_score is averaged in case of duplicate reviews on the same order.
 # ---------------------------------------------------------------------------
 BASE_QUERY = """

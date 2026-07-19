@@ -7,9 +7,14 @@ data/raw/
 data/processed/
 
 # ML artefacts
+model/
 models/
 *.joblib
 *.pkl
+
+# Generated data (reproducible via feature_engineering.py)
+data/customer_features.csv
+data/customer_features.parquet
 
 # Secrets
 .env
