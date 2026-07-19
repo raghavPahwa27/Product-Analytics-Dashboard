@@ -25,7 +25,7 @@ _CSS = """
 
 /* Pull sidebar content up to remove empty top space */
 div[data-testid="stSidebarUserContent"] {
-    padding-top: 1.5rem !important;
+    padding-top: 0.3rem !important;
 }
 
 /* ── KPI cards ────────────────────────────────────────────────── */
@@ -130,3 +130,15 @@ def download_csv(df, label: str, filename: str) -> None:
         file_name=filename,
         mime="text/csv",
     )
+
+
+def format_metric(val: float, is_currency: bool = False) -> str:
+    """Format large numbers into reader-friendly k/M strings for dashboard UI cards."""
+    prefix = "R$ " if is_currency else ""
+    if val >= 1_000_000:
+        return f"{prefix}{val / 1_000_000:.2f}M"
+    if val >= 1_000:
+        return f"{prefix}{val / 1_000:.1f}k"
+    if is_currency:
+        return f"{prefix}{val:.2f}"
+    return f"{val:,.0f}"

@@ -10,7 +10,9 @@ import streamlit as st
 
 from utils.data import load_metrics
 from utils.pdf import generate_report
-from utils.ui import CHART_H, PALETTE, T, download_csv, heading, kpi
+from utils.ui import (
+    CHART_H, PALETTE, T, download_csv, format_metric, heading, kpi
+)
 
 
 def render(df: pd.DataFrame, features: pd.DataFrame) -> None:
@@ -28,12 +30,12 @@ def render(df: pd.DataFrame, features: pd.DataFrame) -> None:
     churn  = features["churn"].mean() * 100
 
     c1, c2, c3, c4, c5, c6 = st.columns(6)
-    kpi(c1, "💰", "Total Revenue",    f"R$ {rev:,.0f}",     "#4F8BF9")
-    kpi(c2, "📦", "Total Orders",     f"{orders:,}",         "#00CC96")
-    kpi(c3, "👥", "Customers",        f"{cust:,}",           "#FFA15A")
-    kpi(c4, "🛒", "Avg Order Value",  f"R$ {aov:,.2f}",     "#AB63FA")
-    kpi(c5, "⭐", "Avg Review Score", f"{review:.2f} / 5",  "#19D3F3")
-    kpi(c6, "🔔", "Churn Rate",       f"{churn:.1f}%",       "#EF553B")
+    kpi(c1, "💰", "Total Revenue",    format_metric(rev, is_currency=True), "#4F8BF9")
+    kpi(c2, "📦", "Total Orders",     format_metric(orders),                 "#00CC96")
+    kpi(c3, "👥", "Customers",        format_metric(cust),                   "#FFA15A")
+    kpi(c4, "🛒", "Avg Order Value",  format_metric(aov, is_currency=True), "#AB63FA")
+    kpi(c5, "⭐", "Avg Review Score", f"{review:.2f} / 5",                 "#19D3F3")
+    kpi(c6, "🔔", "Churn Rate",       f"{churn:.1f}%",                       "#EF553B")
 
     st.divider()
 
