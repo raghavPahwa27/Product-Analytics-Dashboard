@@ -1,14 +1,47 @@
-# Olist Product Analytics Dashboard
+# AI-Powered Product Analytics Dashboard
 
 > A production-quality, end-to-end data analytics platform built on the
 > [Olist Brazilian E-Commerce dataset](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce).
 > Combines SQL data engineering, XGBoost churn prediction, SHAP explainability,
-> an interactive Streamlit dashboard, and a Google Gemini AI Business Copilot.
+> an interactive Streamlit dashboard, and an AI Business Copilot powered by Groq LLaMA 3.3.
 
 [![Python](https://img.shields.io/badge/python-3.9%2B-blue?logo=python)](https://python.org)
 [![Streamlit](https://img.shields.io/badge/streamlit-1.35-red?logo=streamlit)](https://streamlit.io)
 [![XGBoost](https://img.shields.io/badge/XGBoost-2.0-orange)](https://xgboost.ai)
+[![SQLite](https://img.shields.io/badge/SQLite-3-blue?logo=sqlite)](https://sqlite.org)
+[![Plotly](https://img.shields.io/badge/Plotly-5.22-blue)](https://plotly.com)
 [![License](https://img.shields.io/badge/license-MIT-green)](LICENSE)
+
+[Live Demo](https://olist-analytics.streamlit.app/) | [GitHub Repository](https://github.com/raghavPahwa27/Product-Analytics-Dashboard)
+
+---
+
+## 🖥️ Dashboard Showcase
+
+### 🏠 Executive Dashboard
+![Executive Dashboard](assets/executive_dashboard.png)
+
+### 🤖 Churn Prediction & Explainability (SHAP)
+![Churn Prediction Page](assets/churn_prediction.png)
+
+### ✨ AI Copilot Insights
+![AI Copilot Summary](assets/copilot_summary.png)
+
+### 📈 Sales Analytics
+![Sales Dashboard](assets/sales_analytics.png)
+
+---
+
+## ## Features
+
+✓ **SQL-based analytics**: Automated processing of Olist e-commerce database with SQLite.
+✓ **Customer churn prediction**: XGBoost model with leak-free features achieving 0.750 ROC AUC.
+✓ **SHAP explainability**: Individualized prediction explanations (why this customer is predicted to churn).
+✓ **Interactive Streamlit dashboard**: Beautiful multi-page app with dynamic filtering.
+✓ **AI Insights Copilot**: Grounded business summaries and recommendations powered by Groq LLaMA 3.3.
+✓ **Executive PDF reports**: Downloadable, professional A4 summaries generated via ReportLab.
+✓ **Plotly visualizations**: High-fidelity interactive area, bar, scatter, heatmap, and indicator charts.
+✓ **Global filtering**: Seamless sidebar filters for state, category, date, and payment type.
 
 ---
 
@@ -24,35 +57,8 @@ This project is a complete analytics pipeline from raw CSV to interactive AI-pow
 | Machine Learning | Logistic Regression, Random Forest, XGBoost |
 | Explainability | SHAP TreeExplainer |
 | Dashboard | Streamlit + Plotly |
-| AI Copilot | Google Gemini 1.5 Flash |
+| AI Copilot | Groq LLaMA 3.3-70B (OpenAI-compatible) |
 | PDF Reports | ReportLab |
-
----
-
-## Features
-
-### 📊 Interactive Dashboard (7 pages)
-
-| Page | Description |
-|---|---|
-| 🏠 Executive | KPI cards, monthly revenue trend, top categories, churn split |
-| 📈 Sales | Revenue growth, MoM %, category trends, product rankings, payments |
-| 👥 Customers | Spend distribution, repeat buyers, review analysis, segment scatter |
-| 📦 Products | Top/worst categories, revenue-vs-orders bubble, review scores |
-| 🌍 Regional | State revenue/orders, delivery quality, delayed rates, top cities |
-| 🤖 Churn | Live inference, probability gauge, SHAP waterfall, risk badge |
-| ✨ AI Copilot | Gemini-powered executive summary, Q&A, churn explanation, recommendations |
-
-### 🤖 AI Business Copilot
-
-Every response is grounded in your live dashboard data — no hallucination:
-- **Executive Summary**: Full business narrative with KPIs, trends, risks, and recommendations
-- **Ask Your Data**: Natural language Q&A over your metrics
-- **Explain Prediction**: Plain-English SHAP churn explanation + retention strategies
-- **Business Recommendations**: Top 3 management actions from current data
-
-### 📄 PDF Report Generator
-Downloadable A4 executive report including revenue summary, category rankings, regional performance, and ML model metrics.
 
 ---
 
@@ -68,7 +74,7 @@ graph TD
     E --> G[model/]
     G --> H[Streamlit Dashboard<br/>app.py]
     B --> H
-    H -->|utils/ai.py| I[Gemini 1.5 Flash<br/>AI Business Copilot]
+    H -->|utils/ai.py| I[Groq LLaMA 3.3-70B<br/>AI Business Copilot]
     H -->|utils/pdf.py| J[PDF Report<br/>ReportLab]
 ```
 
@@ -138,9 +144,9 @@ cd Product-Analytics-Dashboard
 # 2. Install dependencies
 pip install -r requirements.txt
 
-# 3. Configure Gemini API key (optional — AI Copilot only)
+# 3. Configure Groq API key (optional — AI Copilot only)
 cp .env.example .env
-# Edit .env: GOOGLE_API_KEY=your_key_here
+# Edit .env: GROQ_API_KEY=your_key_here
 
 # 4. Download dataset and build database
 python database.py          # downloads from Kaggle → builds SQLite
@@ -170,18 +176,18 @@ python train.py
 python predict.py
 ```
 
-### Setting the Gemini API Key
+### Setting the Groq API Key
 
 **Local development:**
 ```bash
-export GOOGLE_API_KEY=your_key_here
+export GROQ_API_KEY=your_key_here
 streamlit run app.py
 ```
 
 **Streamlit Cloud:**
 Add in the app settings → Secrets:
 ```toml
-GOOGLE_API_KEY = "your_key_here"
+GROQ_API_KEY = "your_key_here"
 ```
 
 ---
@@ -202,7 +208,7 @@ Product-Analytics-Dashboard/
 ├── utils/
 │   ├── data.py               # Cached data loaders
 │   ├── ui.py                 # CSS, KPI cards, chart helpers
-│   ├── ai.py                 # Gemini client + prompt builders
+│   ├── ai.py                 # Groq client + prompt builders
 │   └── pdf.py                # ReportLab PDF generator
 ├── sql/                      # SQL query files
 ├── model/
@@ -210,7 +216,7 @@ Product-Analytics-Dashboard/
 │   ├── model_metrics.json    # AUC, F1, Precision, Recall
 │   ├── feature_importance.csv
 │   └── classification_report.txt
-├── assets/                   # Generated SHAP plots
+├── assets/                   # Generated SHAP plots & page screenshots
 ├── data/                     # Local data (gitignored)
 ├── database.py               # Kaggle download + SQLite import
 ├── preprocessing.py          # Data cleaning
@@ -233,25 +239,13 @@ Product-Analytics-Dashboard/
 3. Select repository, branch `main`, entry file `app.py`
 4. Add secrets under **Advanced settings → Secrets**:
    ```toml
-   GOOGLE_API_KEY = "your_gemini_api_key"
+   GROQ_API_KEY = "your_groq_api_key"
    ```
 5. Add a **requirements.txt** setup command or use the file as-is
 6. **Important**: The SQLite database and parquet file are not committed.
    Add a `setup.py` or document that first-run users must run `database.py`,
    `feature_engineering.py`, and `train.py` locally and upload artefacts,
    or use a cloud storage bucket for the data files.
-
----
-
-## Future Improvements
-
-- [ ] Streamlit Cloud file persistence via AWS S3 or Google Cloud Storage
-- [ ] Customer segmentation with K-Means (RFM clustering)
-- [ ] Time-series revenue forecasting (Prophet)
-- [ ] Product recommendation engine
-- [ ] Gemini multimodal: upload a CSV for ad-hoc analysis
-- [ ] Email alert integration for high-risk churn customers
-- [ ] A/B test simulation module
 
 ---
 
