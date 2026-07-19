@@ -1,0 +1,11 @@
+Model : XGBoost
+AUC   : 0.7502
+
+              precision    recall  f1-score   support
+
+      Active       0.60      0.67      0.63      7697
+     Churned       0.75      0.69      0.72     10975
+
+    accuracy                           0.68     18672
+   macro avg       0.67      0.68      0.68     18672
+weighted avg       0.69      0.68      0.68     18672

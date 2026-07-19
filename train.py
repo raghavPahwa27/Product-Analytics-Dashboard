@@ -14,10 +14,17 @@ Plots saved to assets/
     feature_importance.html
     shap_summary.png
 
+Artifacts saved to model/
+    churn_model.pkl        — full sklearn Pipeline
+    model_metrics.json     — best model evaluation metrics (read by dashboard)
+    feature_importance.csv — feature names + importance scores
+    classification_report.txt — per-class precision / recall / F1
+
 Run:
     python train.py
 """
 
+import json
 import logging
 from pathlib import Path
 
@@ -460,6 +467,56 @@ def save_model(pipeline: Pipeline) -> None:
     log.info("Saved: model/churn_model.pkl")
 
 
+def save_artifacts(best: dict, best_pipe: Pipeline, y_test) -> None:
+    """
+    Persist lightweight artefacts consumed by the Streamlit dashboard.
+
+    model_metrics.json     — single dict of evaluation numbers
+    feature_importance.csv — sorted feature name / importance pairs
+    classification_report.txt — sklearn text report per class
+    """
+    from sklearn.metrics import classification_report
+
+    MODEL_DIR.mkdir(exist_ok=True)
+
+    # 1. Metrics JSON
+    metrics = {
+        "model":     best["Model"],
+        "roc_auc":   round(best["ROC AUC"],   4),
+        "f1":        round(best["F1"],         4),
+        "precision": round(best["Precision"],  4),
+        "recall":    round(best["Recall"],     4),
+        "accuracy":  round(best["Accuracy"],   4),
+    }
+    (MODEL_DIR / "model_metrics.json").write_text(json.dumps(metrics, indent=2))
+    log.info("Saved: model/model_metrics.json")
+
+    # 2. Feature importance CSV (tree models only)
+    clf = best_pipe.named_steps["clf"]
+    if hasattr(clf, "feature_importances_"):
+        names  = _feature_names(best_pipe.named_steps["pre"])
+        imp_df = (
+            pd.DataFrame({"feature": names,
+                          "importance": clf.feature_importances_})
+            .sort_values("importance", ascending=False)
+            .reset_index(drop=True)
+        )
+        imp_df.to_csv(MODEL_DIR / "feature_importance.csv", index=False)
+        log.info("Saved: model/feature_importance.csv")
+
+    # 3. Classification report
+    report = classification_report(
+        y_test, best["_y_pred"],
+        target_names=["Active", "Churned"],
+    )
+    (MODEL_DIR / "classification_report.txt").write_text(
+        f"Model : {best['Model']}\n"
+        f"AUC   : {best['ROC AUC']:.4f}\n\n"
+        f"{report}"
+    )
+    log.info("Saved: model/classification_report.txt")
+
+
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
@@ -504,10 +561,12 @@ def run() -> None:
     plot_feature_importance(best_pipe)
     plot_shap(best_pipe, X_test)
 
-    # 8. Save
+    # 8. Save model + dashboard artefacts
     save_model(best_pipe)
+    save_artifacts(best, best_pipe, y_test)
     print(f"\n  Pipeline saved -> model/churn_model.pkl")
-    print(f"  Plots saved    -> assets/")
+    print(f"  Artefacts      -> model/{{model_metrics.json, feature_importance.csv, classification_report.txt}}")
+    print(f"  Plots          -> assets/")
     print(f"\n  Run  python predict.py  to test a sample prediction.")
 
 

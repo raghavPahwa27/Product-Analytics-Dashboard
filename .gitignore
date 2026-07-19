@@ -6,11 +6,10 @@
 data/raw/
 data/processed/
 
-# ML artefacts
-model/
+# ML artefacts — ignore large binaries, commit lightweight outputs
+model/*.pkl
+model/*.joblib
 models/
-*.joblib
-*.pkl
 
 # Generated data (reproducible via feature_engineering.py)
 data/customer_features.csv

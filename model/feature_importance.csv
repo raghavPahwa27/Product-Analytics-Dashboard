@@ -1,0 +1,16 @@
+feature,importance
+avg_delivery_days,0.15826435
+pct_delayed,0.15745118
+avg_order_value,0.097787224
+avg_freight_ratio,0.09219994
+total_spend,0.079710625
+num_orders,0.05824274
+customer_lifetime_days,0.057566196
+total_products,0.057259988
+state,0.05244587
+preferred_payment_method,0.04739146
+avg_basket_size,0.045219768
+distinct_sellers,0.0435686
+avg_review_score,0.021943819
+distinct_categories,0.01565435
+weekend_purchase_ratio,0.015293888
