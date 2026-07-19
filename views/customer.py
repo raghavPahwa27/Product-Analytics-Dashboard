@@ -1,5 +1,5 @@
 """
-pages/customer.py
+views/customer.py
 -----------------
 Customer Analytics — spend, orders, reviews, and segment breakdown.
 """

@@ -14,7 +14,7 @@ Run:
 """
 import streamlit as st
 
-from pages import churn, copilot, customer, executive, product, regional, sales
+from views import churn, copilot, customer, executive, product, regional, sales
 from utils.data import load_features, load_orders
 from utils.ui import inject_css
 

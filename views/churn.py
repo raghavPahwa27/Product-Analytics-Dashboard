@@ -1,5 +1,5 @@
 """
-pages/churn.py
+views/churn.py
 --------------
 Churn Prediction — live inference, SHAP individual explanation, risk badge,
 business recommendation, and global feature importance.

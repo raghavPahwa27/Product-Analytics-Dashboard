@@ -43,7 +43,7 @@ streamlit run app.py
 
 ```
 app.py              # Thin router (~70 lines)
-pages/              # One module per dashboard page
+views/              # One module per dashboard view
 utils/              # Shared utilities (data, ui, ai, pdf)
 sql/                # SQL query files
 model/              # Saved model artefacts

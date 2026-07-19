@@ -1,5 +1,5 @@
 """
-pages/regional.py
+views/regional.py
 -----------------
 Regional Analytics — state revenue, delivery quality, top cities.
 """

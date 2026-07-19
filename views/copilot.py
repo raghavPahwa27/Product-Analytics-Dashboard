@@ -1,5 +1,5 @@
 """
-pages/copilot.py
+views/copilot.py
 ----------------
 AI Insights Copilot — four features powered by Groq LLaMA 3.3:
     1. Executive Summary  — full business narrative from real KPIs

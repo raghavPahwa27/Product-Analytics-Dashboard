@@ -1,5 +1,5 @@
 """
-pages/executive.py
+views/executive.py
 ------------------
 Executive Dashboard — KPIs, monthly trends, top categories, churn split.
 Includes PDF report download.

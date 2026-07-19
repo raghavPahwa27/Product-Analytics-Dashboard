@@ -1,5 +1,5 @@
 """
-pages/sales.py
+views/sales.py
 --------------
 Sales Analytics — revenue trends, product performance, payment breakdown.
 """

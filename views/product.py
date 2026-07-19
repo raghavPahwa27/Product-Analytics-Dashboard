@@ -1,5 +1,5 @@
 """
-pages/product.py
+views/product.py
 ----------------
 Product Analytics — category revenue, bubble chart, review scores.
 """

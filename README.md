@@ -132,7 +132,7 @@ streamlit run app.py
 ```
 ├── app.py                    # Streamlit thin router
 ├── setup.py                  # Automated setup script
-├── pages/
+├── views/
 │   ├── executive.py          # KPIs & PDF reports
 │   ├── sales.py              # Sales & payment trends
 │   ├── customer.py           # Customer spend & satisfaction
