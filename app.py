@@ -91,69 +91,75 @@ def _apply_filters(df, f):
     return df
 
 
-# ── Setup Wizard for Deployment ────────────────────────────────────────────────
+# ── Data paths ────────────────────────────────────────────────────────────────
 
 DB_PATH       = Path("data/olist.db")
 FEATURES_PATH = Path("data/customer_features.parquet")
 
+# GitHub Releases URL for the large SQLite database (112 MB)
+# Hosted in: https://github.com/raghavPahwa27/Product-Analytics-Dashboard/releases/tag/v1.0
+DB_DOWNLOAD_URL = (
+    "https://github.com/raghavPahwa27/Product-Analytics-Dashboard"
+    "/releases/download/v1.0/olist.db"
+)
 
-def _show_setup_page():
-    st.markdown("## 📊 Welcome to Olist Analytics Dashboard")
-    st.markdown("### ⚠️ Data files not found")
-    st.markdown(
-        "Since the database (`olist.db`) and customer feature dataset "
-        "(`customer_features.parquet`) are large, they are gitignored and not "
-        "stored directly in the GitHub repository."
-    )
-    
-    st.markdown("---")
-    
-    st.markdown("#### 📂 Option 1: Upload Data Files (for Streamlit Cloud)")
-    st.caption("Upload your local data files to quickly test the dashboard online:")
-    
+
+def _download_db() -> None:
+    """
+    Stream-download olist.db from GitHub Releases with a live progress bar.
+    Called automatically on first boot when the file is not present.
+    """
+    import urllib.request  # noqa: PLC0415
+
     os.makedirs("data", exist_ok=True)
-    
-    db_file = st.file_uploader("Upload olist.db", type=["db", "sqlite"])
-    parquet_file = st.file_uploader("Upload customer_features.parquet", type=["parquet"])
-    
-    if db_file is not None:
-        with open(DB_PATH, "wb") as f:
-            f.write(db_file.getbuffer())
-        st.success("Successfully uploaded olist.db!")
-        
-    if parquet_file is not None:
-        with open(FEATURES_PATH, "wb") as f:
-            f.write(parquet_file.getbuffer())
-        st.success("Successfully uploaded customer_features.parquet!")
-        
-    if DB_PATH.exists() and FEATURES_PATH.exists():
-        st.info("Both files uploaded successfully. Initializing dashboard…")
-        time.sleep(2)
+    st.info(
+        "📥 First-time setup: downloading the Olist database from GitHub Releases "
+        "(~112 MB). This takes 20–40 seconds and only happens once."
+    )
+    progress_bar = st.progress(0, text="Starting download…")
+    tmp_path = DB_PATH.with_suffix(".tmp")
+
+    try:
+        with urllib.request.urlopen(DB_DOWNLOAD_URL) as response:
+            total = int(response.headers.get("Content-Length", 0))
+            downloaded = 0
+            chunk_size = 1024 * 256  # 256 KB chunks
+
+            with open(tmp_path, "wb") as out_f:
+                while True:
+                    chunk = response.read(chunk_size)
+                    if not chunk:
+                        break
+                    out_f.write(chunk)
+                    downloaded += len(chunk)
+                    if total:
+                        pct = min(downloaded / total, 1.0)
+                        mb_done = downloaded / 1_048_576
+                        mb_total = total / 1_048_576
+                        progress_bar.progress(
+                            pct,
+                            text=f"Downloading… {mb_done:.1f} / {mb_total:.1f} MB"
+                        )
+
+        tmp_path.rename(DB_PATH)
+        progress_bar.progress(1.0, text="Download complete ✅")
+        time.sleep(0.8)
         st.rerun()
 
-    st.markdown("---")
-
-    st.markdown("#### 💻 Option 2: Run Locally")
-    st.markdown(
-        "If you want to run the application on your machine, clone the repository "
-        "and run the automated setup script to download the datasets and train the ML model:"
-    )
-    st.code(
-        "git clone https://github.com/raghavPahwa27/Product-Analytics-Dashboard.git\n"
-        "cd Product-Analytics-Dashboard\n"
-        "pip install -r requirements.txt\n"
-        "python setup.py\n"
-        "streamlit run app.py",
-        language="bash",
-    )
+    except Exception as exc:
+        if tmp_path.exists():
+            tmp_path.unlink()
+        st.error(f"❌ Download failed: {exc}")
+        st.stop()
 
 
 # ── Main ──────────────────────────────────────────────────────────────────────
 
 def main():
-    if not DB_PATH.exists() or not FEATURES_PATH.exists():
-        _show_setup_page()
-        return
+    # Auto-download olist.db from GitHub Releases if it's not present
+    if not DB_PATH.exists():
+        _download_db()
+        return   # st.rerun() is called inside _download_db on success
 
     with st.spinner("Loading data…"):
         df       = load_orders()
@@ -173,3 +179,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+

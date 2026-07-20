@@ -6,14 +6,13 @@
 data/raw/
 data/processed/
 
-# ML artefacts — ignore large binaries, commit lightweight outputs
-model/*.pkl
-model/*.joblib
+# ML artefacts — model weights are small enough to commit
+# model/*.pkl is tracked (728 KB)
 models/
 
-# Generated data (reproducible via feature_engineering.py)
+# Generated data
+# customer_features.parquet is tracked (4.4 MB — needed for Streamlit Cloud)
 data/customer_features.csv
-data/customer_features.parquet
 
 # Secrets — never commit these
 .env
